@@ -1,0 +1,12 @@
+//===-- %File% - ? ---------------------------------------------+-+*- C -*-===//
+
+#ifndef %OBJECT%_%EXTENSION%
+#define %OBJECT%_%EXTENSION%
+
+
+
+
+
+#endif // %OBJECT%_%EXTENSION%
+
+// vim:ft=c:et:ts=2:sts=2:sw=2:tw=80

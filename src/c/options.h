@@ -1,0 +1,90 @@
+//===-- options.h - program options ---------------------------*- C -*-===//
+
+#ifndef OPTIONS_H
+#define OPTIONS_H
+
+#include <stddef.h>
+#include <stdbool.h>
+
+#include <unistd.h>
+#include <sys/types.h>
+
+#include "action.h"
+#include "digest.h"
+
+// option defaults
+
+#ifndef OPT_BLKSIZE
+#define OPT_BLKSIZE 4096
+#endif
+
+#ifndef OPT_PAGSIZE
+#define OPT_PAGSIZE 4096
+#endif
+
+#ifndef OPT_BYTES
+#define OPT_BYTES 4096
+#endif
+
+#ifndef OPT_ACTION
+#define OPT_ACTION act_print
+#endif
+
+#ifndef OPT_DIGEST
+#define OPT_DIGEST dig_cty128
+#endif
+
+struct opts {
+
+  bool zero;
+
+  bool recurse;
+
+  bool quiet;
+
+  bool null;
+
+  bool force;
+
+  bool mmap;
+
+  bool user_offset;
+
+  int num_paths;
+
+  int num_digs;
+
+  int threads;
+
+  int blocksize;
+
+  int pagesize;
+
+  size_t bytes;
+
+  off_t offset;
+
+  enum action act;
+
+  enum digest* digs;
+
+  const char* const * paths;
+};
+
+extern struct opts opts;
+
+void _options_init();
+
+void _options_destroy();
+
+void options_parse(const int argc, const char* const argv[]);
+
+void print_help();
+
+void print_usage();
+
+void print_version();
+
+#endif // OPTIONS_H
+
+// vim:ft=c:et:ts=2:sts=2:sw=2:tw=80

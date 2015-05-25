@@ -1,0 +1,192 @@
+#!/usr/bin/python
+
+# random-files - generate random files
+
+# Copyright (c) 2015 Jason Schulz <http://github.com/uxcn>
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# author: jason
+
+import os
+import sys
+import shutil
+import argparse
+
+import random
+
+def init(p):
+
+    p.add_argument('--dirs',
+                   type=int,
+                   default=0,
+                   metavar='n',
+                   help='number of directories to create')
+
+    p.add_argument('--files',
+                   type=int,
+                   metavar='n',
+                   required=True,
+                   help='number of files to create')
+
+    p.add_argument('--copies',
+                   type=int,
+                   metavar='n',
+                   required=True,
+                   help='bound for file copies')
+
+    p.add_argument('--collisions',
+                   type=int,
+                   default=0,
+                   metavar='n',
+                   help='bound for file collisions')
+
+    p.add_argument('--size',
+                   type=int,
+                   metavar='n',
+                   required=True,
+                   help='bound for file sizes')
+
+    p.add_argument('--namelen',
+                   type=int,
+                   default=4,
+                   metavar='n',
+                   help='bound for name length')
+
+    p.add_argument('--fixed',
+                   const=True,
+                   action='store_const',
+                   help='use fixed values (dirs, files, copies, collisions, size)')
+
+    p.add_argument('dir',
+                   help='parent directory for files')
+
+def rn(d):
+
+    az = list([chr(x) for x in range(ord('a'), ord('z'))] +
+              [chr(x) for x in range(ord('A'), ord('Z'))] +
+              [chr(x) for x in range(ord('0'), ord('9'))])
+
+    for _ in range(1024):
+
+        cs = random.sample(az, random.randrange(1, bn))
+        rf = os.path.join(d, ''.join(cs))
+
+        if not os.path.exists(rf):
+            return rf
+
+    print("error: unable to generate unique random name, try running again or possibly lotto")
+    sys.exit(1)
+
+def re(es):
+
+    if (len(es) > 1):
+        return es[random.randrange(0, len(es) - 1)]
+    else:
+        return es[0]
+
+def rf(z):
+
+    d = re(ds)
+    n = rn(d)
+
+    f = os.open(n, os.O_CREAT | os.O_WRONLY)
+
+    os.write(f, os.urandom(z))
+    os.close(f)
+
+    return n
+
+def ds(p):
+
+    s = list()
+
+    for d, ds, fs in os.walk(p):
+        s.extend([os.path.join(d, sd) for sd in ds])
+
+    return s
+
+def o(s):
+    sys.stdout.write(s)
+    sys.stdout.flush()
+
+p = argparse.ArgumentParser(add_help=True)
+
+init(p)
+
+a = p.parse_args()
+
+nd = a.dirs
+nf = a.files
+
+bn = a.namelen
+bs = a.size
+bc = a.copies
+bl = a.collisions
+bf = a.fixed
+
+d = a.dir
+
+ds = [d] + ds(d)
+
+for _ in range(nd):
+
+    rp = re(ds)
+    rd = rn(rp)
+
+    os.mkdir(rd)
+    ds.append(rd)
+
+for _ in range(nf):
+
+    bbc = bc
+    bbl = bl
+    bbz = bs
+
+    if not bf:
+
+        bbc = random.randrange(0, bc) if bc > 0 else 0
+        bbl = random.randrange(0, bl) if bl > 0 else 0
+        bbz = random.randrange(0, bs) if bs > 0 else 0
+
+    n = rf(bbz)
+
+    o("o")
+
+    for _ in range(bbc):
+
+        rd = re(ds)
+        shutil.copy(n, rn(rd))
+
+        o(".")
+
+    for _ in range(bbl):
+
+        n = rf(bbz)
+
+        o("O")
+
+        for _ in range(bbc):
+
+            rd = re(ds)
+            shutil.copy(n, rn(rd))
+
+            o(".")
+
+sys.stdout.write("\n")

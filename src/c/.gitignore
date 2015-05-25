@@ -1,0 +1,9 @@
+*.swp
+*.o
+yafd
+config.h
+config.h.in
+config.h.in~
+.deps
+stamp-h1
+.ycm_extra_conf.pyc
