@@ -1,0 +1,6 @@
+#!/bin/sh
+
+alias sets="$TESTDIR/src/python/sets"
+alias yafd="$TESTDIR/../src/c/yafd -t 0 -o 0 -b 4096"
+
+cd $TESTDIR

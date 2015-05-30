@@ -1,0 +1,12 @@
+#!/bin/sh
+
+export LC_ALL="C"
+
+for m in src/m4/*; do
+
+  t=`basename $m`
+  t=${t%.m4}
+
+  m4 $m > $t.g.t
+
+done

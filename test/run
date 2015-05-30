@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+ulimit -s 8192
+
+DIR=$PWD
+
+cd `dirname $0`
+
+./prepare
+
+cram -v *.t
+
+cd $DIR

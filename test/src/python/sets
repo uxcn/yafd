@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+# sorted-sets - sorted set filter
+
+# Copyright (c) 2015 Jason Schulz <https://github.com/uxcn>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# author: jason
+
+import sys
+
+fss = list()
+
+x = 0
+ls = sys.stdin.readlines()
+
+while x < len(ls):
+
+    f = ls[x].rstrip('\n')
+    fs = list()
+
+    x += 1
+
+    while len(f) != 0:
+        fs.append(f)
+
+        f = ls[x].rstrip('\n') if x < len(ls) else ''
+        x += 1
+
+    if len(fs) > 0:
+        fss.append(fs)
+
+for fs in fss:
+    fs.sort()
+    print('(%s)' % ','.join(fs))
+    
+# vim:ft=python:et:ts=4:sts=4:sw=4:tw=80
