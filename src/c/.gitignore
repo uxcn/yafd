@@ -1,5 +1,8 @@
 *.swp
 *.o
+*.gcov
+*.gcda
+*.gcno
 yafd
 config.h
 config.h.in

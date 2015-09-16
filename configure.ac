@@ -22,10 +22,20 @@ LDFLAGS="$LDFLAGS"
 
 LIBS="$LIBS $PTHREAD_LIBS"
 
-AC_ARG_ENABLE([sse4_2],
-  AS_HELP_STRING([--enable-sse4_2], [Enable SSE4.2 optimizations]))
+AC_ARG_ENABLE([gcov],
+  AS_HELP_STRING([--enable-gcov], [enable gcov instrumentation])
+)
 
-AS_IF([test "x$enable_sse4_2" = "xyes"], CFLAGS="-msse4.2 $CFLAGS"
+AS_IF([test "x$enable_gcov" = "xyes"], 
+  CFLAGS="$CFLAGS -O0 -g -fprofile-arcs -ftest-coverage"
+)
+
+AC_ARG_ENABLE([sse4_2],
+  AS_HELP_STRING([--enable-sse4_2], [enable SSE4.2 optimizations])
+)
+
+AS_IF([test "x$enable_sse4_2" = "xyes"],
+  CFLAGS="$CFLAGS -msse4.2"
 )
 
 
