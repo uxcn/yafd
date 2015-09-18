@@ -30,6 +30,49 @@ AS_IF([test "x$enable_gcov" = "xyes"],
   CFLAGS="$CFLAGS -O0 -g -fprofile-arcs -ftest-coverage"
 )
 
+AC_ARG_ENABLE([asan],
+  AS_HELP_STRING([--enable-asan], [enable address sanity checks])
+)
+
+AS_IF([test "x$enable_asan" = "xyes"], 
+  [AS_IF([test "x$enable_msan" = "xyes" || test "x$enable_tsan" = "xyes" || test "x$enable_ubsan" = "xyes"],
+    [AC_MSG_ERROR([multiple sanitizers can not be enabled simultaneously])], 
+    CFLAGS="$CFLAGS -fsanitize=address"]
+  )
+)
+
+AC_ARG_ENABLE([msan],
+  AS_HELP_STRING([--enable-msan], [enable memory sanity checks]))
+
+AS_IF([test "x$enable_msan" = "xyes"], 
+  [AS_IF([test "x$enable_asan" = "xyes" || test "x$enable_tsan" = "xyes" || test "x$enable_ubsan" = "xyes"],
+    [AC_MSG_ERROR([multiple sanitizers can not be enabled simultaneously])], 
+    CFLAGS="$CFLAGS -fsanitize=memory"]
+  )
+)
+
+AC_ARG_ENABLE([tsan],
+  AS_HELP_STRING([--enable-tsan], [enable thread sanity checks])
+)
+
+AS_IF([test "x$enable_tsan" = "xyes"], 
+  [AS_IF([test "x$enable_asan" = "xyes" || test "x$enable_msan" = "xyes" || test "x$enable_ubsan" = "xyes"],
+    [AC_MSG_ERROR([multiple sanitizers can not be enabled simultaneously])], 
+    CFLAGS="$CFLAGS -fsanitize=thread"]
+  )
+)
+
+AC_ARG_ENABLE([ubsan],
+  AS_HELP_STRING([--enable-ubsan], [enable undefined behavior sanity checks])
+)
+
+AS_IF([test "x$enable_ubsan" = "xyes"], 
+  [AS_IF([test "x$enable_asan" = "xyes" || test "x$enable_msan" = "xyes" || test "x$enable_tsan" = "xyes"],
+    [AC_MSG_ERROR([multiple sanitizers can not be enabled simultaneously])], 
+    CFLAGS="$CFLAGS -fsanitize=undefined"]
+  )
+)
+
 AC_ARG_ENABLE([sse4_2],
   AS_HELP_STRING([--enable-sse4_2], [enable SSE4.2 optimizations])
 )
