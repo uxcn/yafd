@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include <string.h>
 #include <strings.h>
 
 #include <unistd.h>
@@ -170,9 +171,17 @@ void _options_destroy() {
 
 void options_parse(const int argc, const char* const argv[]) {
 
+#ifndef OFF_T_MIN
   const off_t OFF_T_MIN = ((off_t) -1) << ((sizeof(off_t) << 3) - 1);
+#endif
+
+#ifndef OFF_T_MAX
   const off_t OFF_T_MAX = (OFF_T_MIN + 1) * -1;
+#endif
+
+#ifndef SIZE_T_MAX
   const size_t SIZE_T_MAX = (size_t) -1;
+#endif
 
   unsigned long threads;
   unsigned long blocksize;
@@ -181,11 +190,7 @@ void options_parse(const int argc, const char* const argv[]) {
   long long offset;
   int i;
 
-#ifdef HAVE_BZERO
-  bzero(&opts, sizeof(struct opts));
-#else
   memset(&opts, 0, sizeof(struct opts));
-#endif
 
   opts.digs = fcalloc(num_digs + 1, sizeof(enum digest));
 

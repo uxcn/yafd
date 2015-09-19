@@ -43,6 +43,7 @@ static void process_init() {
 
   srand((unsigned int) now); // only seed entropy 
 
+  _thread_init();
   _worker_init(ts);
 }
 

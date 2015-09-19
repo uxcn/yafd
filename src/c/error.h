@@ -28,7 +28,8 @@ static inline void print_error(const char* const s, ...) {
   if (errno) {
 
 #ifdef HAVE_STRERROR_R
-    e = strerror_r(errno, e, bs);
+    if (strerror_r(errno, e, bs))
+      e = "?";
 #else
     e = "?";
 #endif

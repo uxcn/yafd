@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <string.h>
 #include <strings.h>
 
 #include <sys/types.h>
@@ -26,11 +27,7 @@ int read_n(const size_t n, const int fs[n], const size_t c, uint8_t ds[n][c]) {
   size_t cs[n];
   size_t rs = c * n;
 
-#ifdef HAVE_BZERO
-  bzero(cs, n * sizeof(size_t));
-#else
   memset(cs, 0, n * sizeof(size_t));
-#endif
 
   do {
 

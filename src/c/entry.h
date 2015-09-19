@@ -56,11 +56,18 @@ static inline void to_entry(const struct stat* const s,
   e->uid = s->st_uid;
   e->gid = s->st_gid;
   e->mode = s->st_mode;
+
 #ifdef HAVE_STAT_BLKSIZE
   e->bs = s->st_blksize;
 #endif
+
+#ifdef HAVE_DARWIN
+  e->mtime_sec = (time_t) s->st_mtimespec.tv_sec;
+  e->mtime_nsec = (time_t) s->st_mtimespec.tv_nsec;
+#else
   e->mtime_sec = s->st_mtim.tv_sec;
   e->mtime_nsec = s->st_mtim.tv_nsec;
+#endif
 
   e->valid = true;
 }
@@ -156,8 +163,13 @@ static inline int is_modified(const struct entry* const e, bool* b) {
   if (lstat(n, &s))
     return -1;
 
+#ifdef HAVE_DARWIN
+  time_t mtime_sec = (time_t) s.st_mtimespec.tv_sec;
+  time_t mtime_nsec = (time_t) s.st_mtimespec.tv_nsec;
+#else
   time_t mtime_sec = s.st_mtim.tv_sec;
   time_t mtime_nsec = s.st_mtim.tv_nsec;
+#endif
 
   *b = mtime_sec != e->mtime_sec || mtime_nsec != e->mtime_nsec;
 

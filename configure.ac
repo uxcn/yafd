@@ -10,9 +10,15 @@ AC_PREREQ([2.65])
 AC_PROG_CC
 
 m4_include([m4/acx_pthread.m4])
+
 ACX_PTHREAD(
-   [AC_CHECK_HEADERS([pthread.h])],
-   [AC_MSG_WARN([pthread support is missing])]
+  [AC_CHECK_HEADERS([pthread.h])],
+  [AC_MSG_ERROR([pthread support is missing])]
+)
+
+AC_CHECK_DEFINE([__APPLE__],
+  AC_DEFINE([HAVE_DARWIN], [1], [Define to 1 if you have a Darwin operating system])
+  AC_DEFINE([_DARWIN_C_SOURCE], [900000L], [Enable Darwin extensions])
 )
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
@@ -95,7 +101,7 @@ AC_TYPE_SSIZE_T
 
 AC_FUNC_STRERROR_R
 
-AC_CHECK_FUNCS([bzero posix_madvise posix_fadvise])
+AC_CHECK_FUNCS([posix_madvise posix_fadvise])
 
 AC_CHECK_MEMBERS(
   [struct stat.st_blksize], 

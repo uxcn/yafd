@@ -2,13 +2,13 @@
 
 #include "thread.h"
 
+#include <limits.h>
+
 #include <pthread.h>
 
-#include <sched.h>
+#include <unistd.h>
 
 #include <sys/resource.h>
-
-#include "options.h"
 
 #include "options.h"
 
@@ -17,6 +17,12 @@
 #include "error.h"
 #include "memory.h"
 
+#if defined(HAVE_DARWIN)
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
+#endif
 
 size_t pz; // page size
 
@@ -49,17 +55,40 @@ static void thread_key_init() {
 
 int num_cpus() {
 
-  pthread_t this = pthread_self();
+  const long default_cpus = 2;
 
-  cpu_set_t cs;
-  CPU_ZERO(&cs);
+  long cs = 0;
 
-  int err = pthread_getaffinity_np(this, sizeof(cs), &cs);
+#if defined(HAVE_DARWIN)
+
+  int mib[2] = {CTL_HW, HW_NCPU};
+  size_t cslen = sizeof(cs);
+
+  int err = sysctl(mib, 2, &cs, &cslen, NULL, 0);
 
   if (err)
     return err;
 
-  return CPU_COUNT(&cs);
+#elif defined(_SC_NPROCESSORS_ONLN)
+
+  cs = sysconf(_SC_NPROCESSORS_ONLN);
+
+#endif
+
+  if (cs <= 0) {
+
+    print_error("unable to determine number of cpus... using default (%li)", default_cpus);
+
+    return (int) default_cpus;
+
+  } else if (cs > INT_MAX) {
+  
+    return INT_MAX; // wow
+
+  } else {
+
+    return (int) cs;
+  }
 }
 
 uint8_t* thread_local_buffer(const size_t n) {
@@ -72,6 +101,7 @@ uint8_t* thread_local_buffer(const size_t n) {
   uint8_t* r = frealloc(b, n);
 
   if (r != b) {
+
 
     if (pthread_setspecific(key, r))
       on_fatal("unable to set thread local");

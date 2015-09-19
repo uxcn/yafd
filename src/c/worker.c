@@ -19,6 +19,8 @@
 
 #include "config.h" // autoconf
 
+#include "platform.h" // platform
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
@@ -37,6 +39,10 @@
 #include "util.h"
 
 #include "digest.h"
+
+#if defined(HAVE_DARWIN)
+#include "pthread-dw.h"
+#endif
 
 struct queue paths;
 
@@ -339,11 +345,7 @@ static void do_digest(struct duplicate* const d) {
 
   size_t rs = bs * n;
 
-#ifdef HAVE_BZERO
-  bzero(dg, bs);
-#else
   memset(dg, 0, bs);
-#endif
 
   do {
 
