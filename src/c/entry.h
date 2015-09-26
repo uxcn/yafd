@@ -15,6 +15,8 @@
 
 #include "config.h" // autoconf
 
+#include "platform.h" // platform
+
 #include "memory.h"
 
 #include "vector.h"

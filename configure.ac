@@ -16,11 +16,6 @@ ACX_PTHREAD(
   [AC_MSG_ERROR([pthread support is missing])]
 )
 
-AC_CHECK_DEFINE([__APPLE__],
-  AC_DEFINE([HAVE_DARWIN], [1], [Define to 1 if you have a Darwin operating system])
-  AC_DEFINE([_DARWIN_C_SOURCE], [900000L], [Enable Darwin extensions])
-)
-
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 CFLAGS="$CFLAGS $PTHREAD_CFLAGS -D_GNU_SOURCE -pipe -std=c99 -pedantic -Wall -Wextra -Wsign-conversion -Wconversion -Werror"

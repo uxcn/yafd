@@ -10,6 +10,10 @@
 
 #include <sys/resource.h>
 
+#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
 #include "options.h"
 
 #include "math.h"
@@ -17,7 +21,11 @@
 #include "error.h"
 #include "memory.h"
 
-#if defined(HAVE_DARWIN)
+#if defined(HAVE_FREEBSD)
+
+#include <pthread_np.h>
+
+#elif defined(HAVE_DARWIN)
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -30,6 +38,12 @@ static pthread_key_t key;
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 
+#if defined(HAVE_FREEBSD)
+
+typedef cpuset_t cpu_set_t;
+
+#endif
+
 void _thread_init() {
 
   struct rlimit r;
@@ -37,7 +51,11 @@ void _thread_init() {
   if (getrlimit(RLIMIT_STACK, &r))
     print_error("unable to determine stack limit");
 
+#if defined(HAVE_FREEBSD)
+  pz = r.rlim_cur < 0 ? 0 : (size_t) r.rlim_cur >> 4;
+#else
   pz = r.rlim_cur >> 4;
+#endif
 
   pz = min(pz, (size_t) opts.pagesize);
 }
@@ -59,7 +77,22 @@ int num_cpus() {
 
   long cs = 0;
 
-#if defined(HAVE_DARWIN)
+#if defined(HAVE_LINUX) || defined(HAVE_FREEBSD)
+
+  pthread_t this = pthread_self();
+
+  cpu_set_t cpus;
+
+  CPU_ZERO(&cpus);
+
+  int err = pthread_getaffinity_np(this, sizeof(cpus), &cpus);
+
+  if (err)
+    return err;
+
+  cs = (long) CPU_COUNT(&cpus);
+
+#elif defined(HAVE_DARWIN)
 
   int mib[2] = {CTL_HW, HW_NCPU};
   size_t cslen = sizeof(cs);
