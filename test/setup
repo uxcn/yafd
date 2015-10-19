@@ -1,6 +1,15 @@
 #!/bin/sh
 
 alias sets="$TESTDIR/src/python/sets"
-alias yafd="$TESTDIR/../src/c/yafd -t 0 -o 0 -b 4096"
+alias yafd="$TESTDIR/../src/c/yafd -o 0 -b 4096"
+
+if yafd -h | grep -q mmap; then
+  export mmap=1
+fi
+
+if yafd -h | grep -q threads; then
+  export threads=1
+  alias yafd="$TESTDIR/../src/c/yafd -t 0 -o 0 -b 4096"
+fi
 
 cd $TESTDIR

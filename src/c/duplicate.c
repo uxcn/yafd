@@ -4,16 +4,23 @@
 
 #include <assert.h>
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <fcntl.h>
-
-#include <sys/mman.h>
-
-#include "config.h" // autoconf
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
+#endif
+
+
+#include "platform.h" // platform
+
 
 #include "thread.h"
 
@@ -23,7 +30,6 @@
 #include "math.h"
 #include "file.h"
 #include "options.h"
-
 
 int duplicate_content_compare(const void* const k, const void* const v) {
 
@@ -74,7 +80,11 @@ int duplicate_content_compare(const void* const k, const void* const v) {
     typedef uint8_t buffer_t[2][c];
 
     uint8_t db[2][c > pz ? 0 : c];
+#ifdef HAVE_PTHREAD_H
     uint8_t* dg = c > pz ? thread_local_buffer(c << 1) : (uint8_t*) db;
+#else
+    uint8_t* dg = c > pz ? frealloc(bf, c << 1) : (uint8_t*) db;
+#endif
 
     buffer_t* da = (buffer_t*) dg; // magic
 
@@ -91,6 +101,8 @@ int duplicate_content_compare(const void* const k, const void* const v) {
 
   return 0;
 }
+
+#ifdef HAVE_MMAP
 
 int duplicate_content_compare_mmap(const void* const k, const void* const v) {
 
@@ -139,5 +151,7 @@ int duplicate_content_compare_mmap(const void* const k, const void* const v) {
 
   return 0;
 }
+
+#endif // HAVE_MMAP
 
 // vim:ft=c:et:ts=2:sts=2:sw=2:tw=80

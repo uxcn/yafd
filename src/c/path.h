@@ -3,6 +3,11 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
+
 #include "memory.h"
 
 #include "queue.h"

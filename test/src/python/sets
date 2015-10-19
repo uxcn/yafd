@@ -29,7 +29,7 @@ ls = sys.stdin.readlines()
 
 while x < len(ls):
 
-    f = ls[x].rstrip('\n')
+    f = ls[x].rstrip('\r\n')
     fs = list()
 
     x += 1
@@ -37,7 +37,7 @@ while x < len(ls):
     while len(f) != 0:
         fs.append(f)
 
-        f = ls[x].rstrip('\n') if x < len(ls) else ''
+        f = ls[x].rstrip('\r\n') if x < len(ls) else ''
         x += 1
 
     if len(fs) > 0:

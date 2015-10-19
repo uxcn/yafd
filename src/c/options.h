@@ -3,11 +3,17 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <stdbool.h>
 
 #include <unistd.h>
 #include <sys/types.h>
+
+#include "platform.h" // platform
+
 
 #include "action.h"
 #include "digest.h"
@@ -46,7 +52,9 @@ struct opts {
 
   bool force;
 
+#ifdef HAVE_MMAP
   bool mmap;
+#endif
 
   bool user_offset;
 
@@ -54,7 +62,9 @@ struct opts {
 
   int num_digs;
 
+#ifdef HAVE_PTHREAD_H
   int threads;
+#endif
 
   int blocksize;
 

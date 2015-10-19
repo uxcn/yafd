@@ -5,8 +5,14 @@
 
 #include <assert.h>
 
-#include <stdlib.h>
+#include "config.h" // autoconf
+
+
+#include <stddef.h>
 #include <stdint.h>
+
+
+#include "platform.h" // platform
 
 #define max(x, y) \
   ((x) >= (y) ? (x) : (y))

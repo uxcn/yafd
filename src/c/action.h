@@ -3,9 +3,13 @@
 #ifndef ACTION_H
 #define ACTION_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 
-#include "config.h" // autoconf
+
+#include "platform.h" // platform
 
 struct duplicate; // forward declare
 

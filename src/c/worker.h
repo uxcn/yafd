@@ -3,7 +3,14 @@
 #ifndef WORKER_H
 #define WORKER_H
 
+#include "config.h" // autoconf
+
+
 #include <pthread.h>
+
+
+#include "platform.h" // platform
+
 
 #include "queue.h"
 

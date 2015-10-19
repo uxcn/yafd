@@ -3,9 +3,16 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#include "config.h" // autoconf
+
+
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "error.h"
+
+
+#include "platform.h" // platform
 
 static inline void* fmalloc(size_t n) {
 

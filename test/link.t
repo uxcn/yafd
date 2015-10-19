@@ -7,10 +7,10 @@ setup:
 link:
 
   $ yafd -z -l -f files/link/l[0-3]
-  files/link/l0 ...link
-  files/link/l1 ...link
-  files/link/l2 ...link
-  files/link/l3 ...link
+  files/link/l* ...link (glob)
+  files/link/l* ...link (glob)
+  files/link/l* ...link (glob)
+  files/link/l* ...link (glob)
 
   $ ls -l files/link | tail -n +2 | awk '{ print $2 }'
   4

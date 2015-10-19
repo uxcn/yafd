@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include "config.h" // autoconf
+
 #include <stdlib.h>
 
 #include <string.h>
@@ -13,17 +15,22 @@
 #include <unistd.h>
 
 #include <sys/types.h>
-#include <sys/mman.h>
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-
-#include "config.h" // autoconf
-
-#include "platform.h" // platform
+#endif
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
+#endif
+
+
+#include "platform.h" // platform
+
 
 #include "options.h"
 
@@ -40,6 +47,10 @@
 
 #include "digest.h"
 
+#ifdef HAVE_WINDOWS
+#include "mingw.h"
+#endif
+
 #if defined(HAVE_DARWIN)
 #include "pthread-dw.h"
 #endif
@@ -54,9 +65,14 @@ static struct queue digests;
 
 static struct queue compares;
 
-static pthread_once_t worker_once;
+#ifdef HAVE_PTHREAD_H
+static pthread_once_t worker_once = PTHREAD_ONCE_INIT;
+#endif
 
+#ifdef HAVE_PTHREAD_H
 static pthread_barrier_t worker_barrier;
+#endif
+
 
 void _worker_init(const int threads) {
 
@@ -71,12 +87,15 @@ void _worker_init(const int threads) {
 
   if (threads) {
 
+#ifdef HAVE_PTHREAD_H
     if (pthread_barrier_init(&worker_barrier, NULL, (unsigned) threads))
       on_fatal("unable to initialize barrier");
+#endif
   }
 
 }
 
+#ifdef HAVE_PTHREAD_H
 int worker_start(const int threads, pthread_t tids[threads]) {
 
   if (!threads)
@@ -92,7 +111,9 @@ int worker_start(const int threads, pthread_t tids[threads]) {
 
   return 0;
 }
+#endif
 
+#ifdef HAVE_PTHREAD_H
 int worker_end(const int threads, pthread_t tids[threads]) {
 
   for (int i = 0; i < threads; i++) {
@@ -105,8 +126,9 @@ int worker_end(const int threads, pthread_t tids[threads]) {
 
   return 0;
 }
+#endif
 
-static int on_file(const char* const file, const struct stat* const s, struct duplicate** dp) {
+static int on_file(const char* const file, const ino_t i, const struct stat* const s, struct duplicate** dp) {
 
   bool z = opts.zero;
 
@@ -128,7 +150,7 @@ static int on_file(const char* const file, const struct stat* const s, struct du
 
   assert(d->hash.value == (size_t) s->st_size);
 
-  duplicate_entry_lazy_get_atomic(d, s->st_dev, s, a, &ds, &n);
+  duplicate_entry_lazy_get_atomic(d, s->st_dev, i, s, a, &ds, &n);
 
   if (ds == 2 && n)
       queue_add(&digests, &d->queue);
@@ -151,6 +173,7 @@ static int on_dir(const char* const dir, struct duplicate** dp) {
 
   while ((de = readdir(d))) {
 
+    ino_t i;
     struct stat s;
 
     size_t bs = strlen(dir) + strlen(de->d_name) + 2;
@@ -164,8 +187,20 @@ static int on_dir(const char* const dir, struct duplicate** dp) {
       continue;
     }
 
+#ifndef HAVE_WINDOWS
+    i = s.st_ino;
+#endif
+
+#ifdef HAVE_WINDOWS
+    if (inode_w(a, &i)) {
+
+      print_error("unable to inode %s", d);
+      continue;
+    }
+#endif
+
     if (S_ISREG(s.st_mode))
-      if (on_file(a, &s, dp))
+      if (on_file(a, i, &s, dp))
         print_error("unable to process file %s/%s", dir, de->d_name);
   }
 
@@ -216,15 +251,25 @@ static int on_dir(const char* const dir, struct duplicate** dp) {
 
 static int on_path(const char* const path, struct duplicate** dp) {
 
+  ino_t i;
   struct stat s;
 
   if (lstat(path, &s)) 
     return -1;
 
+#ifndef HAVE_WINDOWS
+  i = s.st_ino;
+#endif
+
+#ifdef HAVE_WINDOWS
+    if (inode_w(path, &i))
+      return -1;
+#endif
+
   if (S_ISDIR(s.st_mode))
     return on_dir(path, dp);
   else if (S_ISREG(s.st_mode))
-    return on_file(path, &s, dp);
+    return on_file(path, i, &s, dp);
 
   return 0;
 }
@@ -245,7 +290,10 @@ static void do_digest(struct duplicate* const d) {
   const size_t bs = min(opts.bytes, (size_t) e->size);
   enum digest* gs = opts.digs;
   const off_t o = opts.offset;
+
+#ifdef HAVE_MMAP
   const bool m = opts.mmap;
+#endif
 
   const bool uo = opts.user_offset;
 
@@ -298,10 +346,15 @@ static void do_digest(struct duplicate* const d) {
       if (entry_handle_size_modify(es[n]))
         continue;
 
+#ifdef HAVE_WINDOWS
+      es[n]->fd = open(a, O_RDONLY | O_BINARY);
+#else
       es[n]->fd = open(a, O_RDONLY);
+#endif
 
       digest_init(&hs[n], gs);
 
+#ifdef HAVE_MMAP
       if (m) {
 
         es[n]->mm = mmap(0, (size_t) es[n]->size, PROT_READ, MAP_SHARED, es[n]->fd, 0);
@@ -313,6 +366,7 @@ static void do_digest(struct duplicate* const d) {
         cs[n++] = bs;
         continue;
       }
+#endif
 
 #ifdef HAVE_POSIX_FADVISE
       if (posix_fadvise(es[n]->fd, k, (off_t) bs, POSIX_FADV_SEQUENTIAL))
@@ -341,7 +395,11 @@ static void do_digest(struct duplicate* const d) {
   vector_init(&ds, 2);
 
   uint8_t db[bs > pz ? 0 : bs];
+#ifdef HAVE_PTHREAD_H
   uint8_t* dg = bs > pz ? thread_local_buffer(bs) : db;
+#else
+  uint8_t* dg = bs > pz ? frealloc(bf, bs) : db;
+#endif
 
   size_t rs = bs * n;
 
@@ -354,8 +412,13 @@ static void do_digest(struct duplicate* const d) {
       if (!cs[i])
         continue;
 
+#ifdef HAVE_MMAP
       uint8_t* dp = m ? (uint8_t*) es[i]->mm + k : dg;
       ssize_t r = m ? (ssize_t) cs[i] : read(es[i]->fd, dp, cs[i]);
+#else
+      uint8_t* dp = dg;
+      ssize_t r = read(es[i]->fd, dp, (unsigned) cs[i]);
+#endif
       size_t c = (size_t) r;
 
       if (r < 0) {
@@ -383,6 +446,7 @@ static void do_digest(struct duplicate* const d) {
       digest(bs, dp, &hs[i], gs);
       digest_finalize(&hs[i], gs);
 
+#ifdef HAVE_MMAP
       if (m && munmap(es[i]->mm, bs)) {
 
         print_error("unable to unmap %s", entry_alias(es[i]));
@@ -390,9 +454,10 @@ static void do_digest(struct duplicate* const d) {
         entry_destroy(es[i]);
         continue;
       }
+#endif
 
       if (close(es[i]->fd)) {
-        
+
         print_error("unable to close %s", entry_alias(es[i]));
 
         entry_destroy(es[i]);
@@ -439,7 +504,9 @@ static void do_compare(struct duplicate* const d) {
   const struct device* const v = vector_head(&d->devices);
   const struct entry* const e = vector_head(&v->entries);
 
+#ifdef HAVE_MMAP
   const bool m = opts.mmap;
+#endif
 
   struct vector ds;
 
@@ -465,12 +532,20 @@ static void do_compare(struct duplicate* const d) {
       if (entry_handle_modify(e))
         continue;
 
+#ifdef HAVE_WINDOWS
+      e->fd = open(entry_alias(e), O_RDONLY | O_BINARY);
+#else
       e->fd = open(entry_alias(e), O_RDONLY);
+#endif
 
+#ifdef HAVE_MMAP
       if (m)
         e->mm = mmap(0, (size_t) e->size, PROT_READ, MAP_SHARED, e->fd, 0);
       
       int (* const f) (const void*, const void*) = m ? duplicate_content_compare_mmap : duplicate_content_compare;
+#else
+      int (* const f) (const void*, const void*) = duplicate_content_compare;
+#endif
 
       if (vector_bsearch(&ds, e, f, &i)) {
 
@@ -506,11 +581,13 @@ static void do_compare(struct duplicate* const d) {
     vector_for_each(tv, &td->devices) {
       vector_for_each(te, &tv->entries) {
 
+#ifdef HAVE_MMAP
         if (m && munmap(te->mm, (size_t) te->size)) {
         
           print_error("unable to unmap %s", entry_alias(te));
           te->valid = false;
         }
+#endif
 
         if (close(te->fd)) {
         
@@ -542,6 +619,7 @@ static void stod_destroy() {
   hash_destroy(&stod);
 }
 
+#ifdef HAVE_PTHREAD_H
 static int worker_wait() {
 
   int ts = opts.threads;
@@ -551,6 +629,7 @@ static int worker_wait() {
 
   return 1;
 }
+#endif
 
 
 void* worker(void* a) {
@@ -566,14 +645,26 @@ void* worker(void* a) {
 
   duplicate_destroy(d);
 
+#ifdef HAVE_PTHREAD_H
   worker_wait();
 
   pthread_once(&worker_once, stod_destroy);
+#endif
+
+#ifndef HAVE_PTHREAD_H
+  stod_destroy();
+#endif
 
   while (duplicate_take(&digests, &d))
     do_digest(d);
 
+#ifdef HAVE_PTHREAD_H
   worker_wait();
+#endif
+
+#ifndef HAVE_PTHREAD_H
+  free(bf);
+#endif
 
   while (duplicate_take(&compares, &d))
     do_compare(d);

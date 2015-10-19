@@ -2,6 +2,10 @@
 
 #include "file.h"
 
+
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -14,11 +18,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "config.h" // autoconf 
-
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+
+#include "platform.h" // platform
+
 
 #include "math.h"
 
@@ -33,7 +39,7 @@ int read_n(const size_t n, const int fs[n], const size_t c, uint8_t ds[n][c]) {
 
     for (size_t i = 0; i < n; i++) {
 
-      ssize_t r = read(fs[i], &ds[i][cs[i]], c - cs[i]);
+      ssize_t r = read(fs[i], &ds[i][cs[i]], (unsigned) (c - cs[i]));
 
       if (r < 0)
         return -1;

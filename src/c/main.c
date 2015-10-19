@@ -1,6 +1,14 @@
 //===-- yafd.c - yafd main ----------------------------------------*- C -*-===//
 
+
+#include "config.h" // autoconf
+
+
 #include <errno.h>
+
+
+#include "platform.h" // platform
+
 
 #include "error.h"
 

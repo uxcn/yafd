@@ -10,6 +10,10 @@
 
 #include <string.h>
 
+
+#include "platform.h" // platform
+
+
 #include "memory.h"
 
 #include "math.h"

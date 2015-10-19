@@ -2,7 +2,9 @@
 
 #include "action.h"
 
+
 #include "config.h" // autoconf
+
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -10,10 +12,18 @@
 #include <ctype.h>
 #include <unistd.h>
 
+
+#include "platform.h" // platform
+
+
 #include "options.h"
 
 #include "entry.h"
 #include "duplicate.h"
+
+#ifdef HAVE_WINDOWS
+#include "mingw.h"
+#endif
 
 static bool ask_user(const struct entry* const e, const enum action a, const size_t i) {
 
@@ -31,6 +41,9 @@ static bool ask_user(const struct entry* const e, const enum action a, const siz
       printf(" * %s ...%s (Y/n)? ", n, to_string_action(a));
     else
       printf("%s\n * %s ...%s (Y/n)? ", n, n, to_string_action(a));
+
+    if (fflush(stdout))
+      print_error("unable to flush (stdout)");
 
     ssize_t r = getline(&u, &un, stdin);
 
@@ -67,6 +80,9 @@ static enum action ask_user_input(const struct entry* const e, const size_t i) {
     else
       printf("%s\n * %s ...%s/%s/%s? ", n, n, to_prompt_string_action(act_link), to_prompt_string_action(act_delete), to_prompt_string_action(act_none));
 
+    if (fflush(stdout))
+      print_error("unable to flush (stdout)");
+
     ssize_t r = getline(&u, &un, stdin);
 
     if (r == -1)
@@ -100,7 +116,7 @@ static void action_output(const struct entry* const e, const enum action a, cons
 
 int do_link(const struct duplicate* d) {
 
-  bool f = opts.force;
+  const bool f = opts.force;
 
   const struct entry* ce = NULL;
   const char* c = NULL;

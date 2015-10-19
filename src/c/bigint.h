@@ -3,8 +3,14 @@
 #ifndef BIGINT_H
 #define BIGINT_H
 
+#include "config.h" // autoconf
+
+
 #include <stdint.h>
 #include <stdbool.h>
+
+
+#include "platform.h" // platform
 
 struct uint128_t {
   uint64_t a;

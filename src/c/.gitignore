@@ -4,6 +4,7 @@
 *.gcda
 *.gcno
 yafd
+yafd.exe
 config.h
 config.h.in
 config.h.in~

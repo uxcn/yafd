@@ -3,15 +3,18 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include <stddef.h>
-#include <sys/types.h>
 
 #include "config.h" // autoconf
+
+#include <stddef.h>
+#include <sys/types.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
+
+#include "platform.h" // platform
 
 int read_n(const size_t n, const int fs[n], const size_t c, uint8_t ds[n][c]);
 

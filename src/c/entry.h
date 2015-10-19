@@ -3,6 +3,9 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <stdio.h>
 
@@ -13,13 +16,17 @@
 
 #include <unistd.h>
 
-#include "config.h" // autoconf
 
 #include "platform.h" // platform
+
 
 #include "memory.h"
 
 #include "vector.h"
+
+#ifdef HAVE_WINDOWS
+#include "mingw.h"
+#endif
 
 
 static const size_t default_init_aliases = 2;
@@ -44,31 +51,37 @@ struct entry {
   bool valid;
 
   int fd;
+#ifdef HAVE_MMAP
   void* mm;
+#endif
 
   struct vector aliases;
 };
 
-static inline void to_entry(const struct stat* const s,
+static inline void to_entry(const ino_t i, const struct stat* const s,
                             struct entry* const e) {
 
-  e->device = s->st_dev;
-  e->inode = s->st_ino;
-  e->size = s->st_size;
-  e->uid = s->st_uid;
-  e->gid = s->st_gid;
-  e->mode = s->st_mode;
+  e->inode = (ino_t) i;
+
+  e->device = (dev_t) s->st_dev;
+  e->size = (off_t) s->st_size;
+  e->uid = (uid_t) s->st_uid;
+  e->gid = (gid_t) s->st_gid;
+  e->mode = (mode_t) s->st_mode;
 
 #ifdef HAVE_STAT_BLKSIZE
-  e->bs = s->st_blksize;
+  e->bs = (blksize_t)  s->st_blksize;
 #endif
 
-#ifdef HAVE_DARWIN
+#if defined(HAVE_DARWIN)
   e->mtime_sec = (time_t) s->st_mtimespec.tv_sec;
   e->mtime_nsec = (time_t) s->st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_MTIM)
+  e->mtime_sec = (time_t) s->st_mtim.tv_sec;
+  e->mtime_nsec = (time_t) s->st_mtim.tv_nsec;
 #else
-  e->mtime_sec = s->st_mtim.tv_sec;
-  e->mtime_nsec = s->st_mtim.tv_nsec;
+  e->mtime_sec = (time_t) s->st_mtime;
+  e->mtime_nsec = (time_t) 0;
 #endif
 
   e->valid = true;
@@ -91,13 +104,13 @@ static inline void entry_alias_add(struct entry* const e, const char* const f) {
   vector_push(&e->aliases, f);
 }
 
-static inline struct entry* entry_create(const struct stat* const s, const char* const a) {
+static inline struct entry* entry_create(const ino_t i, const struct stat* const s, const char* const a) {
 
   struct entry* const e = fmalloc(sizeof(struct entry));
 
   entry_init(e);
 
-  to_entry(s, e);
+  to_entry(i, s, e);
 
   entry_alias_add(e, a);
 
@@ -165,12 +178,15 @@ static inline int is_modified(const struct entry* const e, bool* b) {
   if (lstat(n, &s))
     return -1;
 
-#ifdef HAVE_DARWIN
+#if defined(HAVE_DARWIN)
   time_t mtime_sec = (time_t) s.st_mtimespec.tv_sec;
   time_t mtime_nsec = (time_t) s.st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_MTIM)
+  time_t mtime_sec = (time_t) s.st_mtim.tv_sec;
+  time_t mtime_nsec = (time_t) s.st_mtim.tv_nsec;
 #else
-  time_t mtime_sec = s.st_mtim.tv_sec;
-  time_t mtime_nsec = s.st_mtim.tv_nsec;
+  time_t mtime_sec = (time_t) s.st_mtime;
+  time_t mtime_nsec = (time_t) 0;
 #endif
 
   *b = mtime_sec != e->mtime_sec || mtime_nsec != e->mtime_nsec;
@@ -184,7 +200,7 @@ static inline bool entry_handle_modify(struct entry* const e) {
 
     if (is_modified(e, &m)) {
 
-      print_error("unable to determine modifiection %s", entry_alias(e));
+      print_error("unable to determine modification %s", entry_alias(e));
 
       entry_destroy(e);
       return true;

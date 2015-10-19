@@ -5,12 +5,20 @@
 
 #include <assert.h>
 
-#include <stdlib.h>
+#include "config.h" // autoconf
 
+#include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <strings.h>
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
+
+
+#include "platform.h" // platform
+
 
 #include "math.h"
 #include "memory.h"
@@ -26,7 +34,9 @@ struct hash_entry {
 
 struct hash {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_t mutex;
+#endif
 
   size_t size;
   size_t limit;
@@ -64,7 +74,9 @@ static inline void hash_reset(struct hash* const h, size_t s) {
 
 static inline void hash_init(struct hash* const h, size_t s) {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_init(&h->mutex, NULL);
+#endif
 
   hash_reset(h, s);
 }
@@ -81,7 +93,9 @@ static inline void hash_release(struct hash* const h) {
 
 static inline void hash_destroy(struct hash* const h) {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_destroy(&h->mutex);
+#endif
 
   hash_release(h);
 }
@@ -160,7 +174,9 @@ static inline bool hash_put(struct hash* const h, struct hash_entry* const e) {
 static inline struct hash_entry* hash_get_or_put_atomic(struct hash* const h,
                                                         struct hash_entry* const e) {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_lock(&h->mutex);
+#endif
 
   if (h->size == h->limit >> 1)
     hash_resize(h, h->limit << 1);
@@ -174,7 +190,9 @@ static inline struct hash_entry* hash_get_or_put_atomic(struct hash* const h,
 
     if (he && he->value == e->value) {
 
+#ifdef HAVE_PTHREAD_H
       pthread_mutex_unlock(&h->mutex);
+#endif
       return he;
     }
 
@@ -184,7 +202,9 @@ static inline struct hash_entry* hash_get_or_put_atomic(struct hash* const h,
 
   h->size++;
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_unlock(&h->mutex);
+#endif
   
   return e;
 }

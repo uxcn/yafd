@@ -3,13 +3,19 @@
 #ifndef CRC32_H
 #define CRC32_H
 
-#include <stddef.h>
-
 #include "config.h" // autoconf
+
+
+#include <stddef.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+
+#include "platform.h" // platform
+
+
 
 #include "crc32-algo.h"
 

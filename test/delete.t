@@ -7,13 +7,13 @@ setup:
 delete:
 
   $ yafd -z -d -f files/delete/d[0-3]
-  files/delete/d0 ...none
-  files/delete/d1 ...delete
-  files/delete/d2 ...delete
-  files/delete/d3 ...delete
+  files/delete/d* ...none (glob)
+  files/delete/d* ...delete (glob)
+  files/delete/d* ...delete (glob)
+  files/delete/d* ...delete (glob)
 
   $ ls files/delete
-  d0
+  d* (glob)
 
 cleanup:
 

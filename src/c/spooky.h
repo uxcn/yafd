@@ -3,8 +3,15 @@
 #ifndef SPOOKY_H
 #define SPOOKY_H
 
+#include "config.h" // autoconf
+
+
 #include <stdlib.h>
 #include <stdint.h>
+
+
+#include "platform.h" // platform
+
 
 #include "bigint.h"
 

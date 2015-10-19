@@ -2,6 +2,10 @@
 
 #include "options.h"
 
+
+#include "config.h" // autoconf
+
+
 #include <stdlib.h>
 #include <limits.h>
 
@@ -15,7 +19,9 @@
 #include <errno.h>
 #include <getopt.h>
 
-#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
 
 #include "memory.h"
 #include "error.h"
@@ -29,7 +35,9 @@ enum opt {
   opt_quiet       = 'q',
   opt_null        = '0',
   opt_force       = 'f',
+#ifdef HAVE_MMAP
   opt_mmap        = 'm',
+#endif
   opt_link        = 'l',
   opt_print       = 'p',
   opt_delete      = 'd',
@@ -42,7 +50,9 @@ enum opt {
   opt_sky64       = 'S',
   opt_sky128      = 'P',
   opt_zero        = 'z',
+#ifdef HAVE_PTHREAD_H
   opt_threads     = 't',
+#endif
   opt_blocksize   = 'k',
   opt_pagesize    = 'g',
   opt_bytes       = 'b',
@@ -69,7 +79,9 @@ static const struct opt_desc opt_descs[] = {
   { opt_quiet,        "quiet",        "suppress normal output",            no_argument },
   { opt_null,         "null",         "delimit files using ASCII NUL",     no_argument },
   { opt_force,        "force",        "don't ask before doing action",     no_argument },
+#ifdef HAVE_MMAP
   { opt_mmap,         "mmap",         "use memory mapped I/O",             no_argument },
+#endif
   { opt_link,         "link",         "hard link all duplicate files",     no_argument },
   { opt_print,        "print",        "print duplicate files",             no_argument },
   { opt_delete,       "delete",       "delete duplicate files",            no_argument },
@@ -84,7 +96,9 @@ static const struct opt_desc opt_descs[] = {
   { opt_cty128,       "cty128",       "use CityHash (128)",                no_argument },
   { opt_sky64,        "sky64",        "use SpookyHash (64)",               no_argument },
   { opt_sky128,       "sky128",       "use SpookyHash (128)",              no_argument },
+#ifdef HAVE_PTHREAD_H
   { opt_threads,      "threads",      "the number of concurrent threads",  required_argument },
+#endif
   { opt_blocksize,    "blocksize",    "the default filesystem block size", required_argument },
   { opt_pagesize,     "pagesize",     "the default memory page size",      required_argument },
   { opt_bytes,        "bytes",        "the number of bytes to use in " 
@@ -183,7 +197,9 @@ void options_parse(const int argc, const char* const argv[]) {
   const size_t SIZE_T_MAX = (size_t) -1;
 #endif
 
+#ifdef HAVE_PTHREAD_H
   unsigned long threads;
+#endif
   unsigned long blocksize;
   unsigned long pagesize;
   unsigned long long bytes;
@@ -194,7 +210,9 @@ void options_parse(const int argc, const char* const argv[]) {
 
   opts.digs = fcalloc(num_digs + 1, sizeof(enum digest));
 
+#ifdef HAVE_PTHREAD_H
   opts.threads = num_cpus() * 2;
+#endif
 
   opts.bytes = OPT_BYTES;
 
@@ -233,9 +251,11 @@ void options_parse(const int argc, const char* const argv[]) {
         opts.force = true;
         break;
 
+#ifdef HAVE_MMAP
       case opt_mmap:
         opts.mmap = true;
         break;
+#endif
 
       case opt_interactive:
         if (opts.force)
@@ -277,6 +297,7 @@ void options_parse(const int argc, const char* const argv[]) {
         opts.zero = true;
         break;
 
+#ifdef HAVE_PTHREAD_H
       case opt_threads:
         threads = strtoul(optarg, NULL, 10);
 
@@ -285,6 +306,7 @@ void options_parse(const int argc, const char* const argv[]) {
 
         opts.threads = (int) threads;
         break;
+#endif
 
       case opt_blocksize:
         blocksize = strtoul(optarg, NULL, 10);

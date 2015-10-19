@@ -5,6 +5,11 @@
 
 #include "city.h"
 
+#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
+
 #include "math.h"
 
 #define likely(x) (__builtin_expect(!!(x), 1))

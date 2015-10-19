@@ -3,8 +3,15 @@
 #ifndef CITY_H
 #define CITY_H
 
+#include "config.h" // autoconf
+
+
 #include <stdlib.h>
 #include <stdint.h>
+
+
+#include "platform.h" // platform
+
 
 #include "bigint.h"
 

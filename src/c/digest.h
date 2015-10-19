@@ -3,14 +3,19 @@
 #ifndef DIGEST_H
 #define DIGEST_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <limits.h>
-
-#include "config.h" // autoconf
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+
+#include "platform.h" // platform
+
 
 #include "bigint.h"
 

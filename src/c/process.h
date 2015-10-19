@@ -3,6 +3,10 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
 void run();
 
 #endif // PROCESS_H

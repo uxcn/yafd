@@ -4,6 +4,12 @@
 
 #include "spooky.h"
 
+
+#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
+
 #include "math.h"
 
 #define ALLOW_UNALIGNED_READS 1

@@ -7,8 +7,8 @@ setup:
 zero size (match):
 
   $ yafd -z files/zero/z[01]
-  files/zero/z0
-  files/zero/z1
+  files/zero/z* (glob)
+  files/zero/z* (glob)
 
 zero size (no match):
 

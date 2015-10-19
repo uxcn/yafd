@@ -3,9 +3,15 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include "config.h" // autoconf
+
+
 #include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
+
+
+#include "platform.h" // platform
 
 #define container_of(ptr, type, member)                                        \
   (type*)((char*)(ptr) - offsetof(type, member))

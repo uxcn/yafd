@@ -2,15 +2,18 @@
 
 #include "thread.h"
 
+
+#include "config.h" // autoconf
+
+
 #include <limits.h>
 
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
+#endif
 
 #include <unistd.h>
 
-#include <sys/resource.h>
-
-#include "config.h" // autoconf
 
 #include "platform.h" // platform
 
@@ -21,6 +24,12 @@
 #include "error.h"
 #include "memory.h"
 
+#if defined(HAVE_GETRLIMIT)
+#include <sys/resource.h>
+#endif
+
+#if defined(HAVE_PTHREAD_H)
+
 #if defined(HAVE_FREEBSD)
 
 #include <pthread_np.h>
@@ -30,10 +39,19 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
+#elif defined(HAVE_WINDOWS)
+
+#include <windows.h>
+
+#endif
+
 #endif
 
 size_t pz; // page size
 
+void* bf; // process buffer
+
+#if defined(HAVE_PTHREAD_H)
 static pthread_key_t key;
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
@@ -44,8 +62,12 @@ typedef cpuset_t cpu_set_t;
 
 #endif
 
+#endif
+
 void _thread_init() {
 
+
+#ifdef HAVE_GETRLIMIT
   struct rlimit r;
 
   if (getrlimit(RLIMIT_STACK, &r))
@@ -57,20 +79,29 @@ void _thread_init() {
   pz = r.rlim_cur >> 4;
 #endif
 
+#else
+  pz = (size_t) opts.pagesize;
+#endif
+
   pz = min(pz, (size_t) opts.pagesize);
 }
 
+#if defined(HAVE_PTHREAD_H)
 static void thread_key_destroy(void* a) {
 
   free(a);
 }
+#endif
 
+#if defined(HAVE_PTHREAD_H)
 static void thread_key_init() {
 
   if (pthread_key_create(&key, thread_key_destroy))
     on_fatal("unable to create thread local key");
 }
+#endif
 
+#if defined(HAVE_PTHREAD_H)
 int num_cpus() {
 
   const long default_cpus = 2;
@@ -106,6 +137,13 @@ int num_cpus() {
 
   cs = sysconf(_SC_NPROCESSORS_ONLN);
 
+#elif defined(HAVE_WINDOWS)
+
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+
+  cs = (long) si.dwNumberOfProcessors;
+
 #endif
 
   if (cs <= 0) {
@@ -123,7 +161,9 @@ int num_cpus() {
     return (int) cs;
   }
 }
+#endif
 
+#ifdef HAVE_PTHREAD_H
 uint8_t* thread_local_buffer(const size_t n) {
 
   if (pthread_once(&once, thread_key_init))
@@ -142,5 +182,6 @@ uint8_t* thread_local_buffer(const size_t n) {
 
   return r;
 }
+#endif
 
 // vim:ft=c:et:ts=2:sts=2:sw=2:tw=80

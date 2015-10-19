@@ -1,6 +1,6 @@
 setup:
 
-  $ . /$TESTDIR/setup
+  $ . $TESTDIR/setup
 
 basic (CRC32):
 
@@ -55,14 +55,4 @@ esyscmd(sort files/basic/sets | sed s/^/"  "/)
 basic (large blocksize):
 
   $ yafd -k 1073741824 < files/basic/list | sets | sort
-esyscmd(sort files/basic/sets | sed s/^/"  "/)
-
-basic (threads):
-
-  $ yafd -t 4 < files/basic/list | sets | sort
-esyscmd(sort files/basic/sets | sed s/^/"  "/)
-
-basic (mmap i/o):
-
-  $ yafd -m < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)

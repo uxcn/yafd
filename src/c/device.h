@@ -3,11 +3,16 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 
 #include <sys/types.h>
 
-#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
 
 #include "memory.h"
 

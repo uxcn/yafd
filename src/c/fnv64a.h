@@ -3,13 +3,18 @@
 #ifndef FNV64A_H
 #define FNV64A_H
 
-#include <stddef.h>
-
 #include "config.h" // autoconf
+
+
+#include <stddef.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+
+#include "platform.h" // platform
+
 
 #ifdef FNVMUL
 

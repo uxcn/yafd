@@ -3,6 +3,9 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#include "config.h" // autoconf
+
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -13,7 +16,8 @@
 
 #include <pthread.h>
 
-#include "config.h" // autoconf
+
+#include "platform.h" // platform
 
 static inline void print_error(const char* const s, ...) {
 
@@ -27,8 +31,11 @@ static inline void print_error(const char* const s, ...) {
 
   if (errno) {
 
-#ifdef HAVE_STRERROR_R
+#if defined(HAVE_STRERROR_R)
     if (strerror_r(errno, e, bs))
+      e = "?";
+#elif defined(HAVE_WINDOWS)
+    if (strerror_s(e, bs, errno))
       e = "?";
 #else
     e = "?";

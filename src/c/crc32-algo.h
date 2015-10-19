@@ -3,13 +3,18 @@
 #ifndef CRC32_ALGO_H
 #define CRC32_ALGO_H
 
-#include <stddef.h>
-
 #include "config.h" // autoconf
+
+
+#include <stddef.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+
+
+#include "platform.h" // platform
+
 
 #ifdef __SSE4_2__
 

@@ -3,12 +3,19 @@
 #ifndef DUPLICATE_H
 #define DUPLICATE_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <stdio.h>
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 
-#include "config.h" // autoconf
+
+#include "platform.h" // platform
+
 
 #include "options.h"
 
@@ -23,12 +30,18 @@
 
 #include "digest.h"
 
+#ifdef HAVE_WINDOWS
+#include "mingw.h"
+#endif
+
 
 static const size_t default_init_devices = 8;
 
 struct duplicate {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_t mutex;
+#endif
 
   size_t count;
 
@@ -54,7 +67,9 @@ static inline int duplicate_digest_compare(const void* const k, const void* cons
 
 static inline void duplicate_init(struct duplicate* const d) {
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_init(&d->mutex, NULL);
+#endif
 
   d->count = 0;
 
@@ -110,13 +125,13 @@ static inline struct device* duplicate_device_lazy_get(struct duplicate* const d
   return v;
 }
 
-static inline struct entry* duplicate_entry_lazy_get(struct duplicate* const d, const dev_t n, const struct stat* const s, const char* const a, size_t* c,  bool* i) {
+static inline struct entry* duplicate_entry_lazy_get(struct duplicate* const d, const dev_t n, const ino_t o, const struct stat* const s, const char* const a, size_t* c,  bool* i) {
 
   size_t p;
 
   struct device* const v = duplicate_device_lazy_get(d, n);
 
-  if (vector_bsearch(&v->entries, &s->st_ino, entry_compare, &p)) {
+  if (vector_bsearch(&v->entries, &o, entry_compare, &p)) {
 
     struct entry* const e = vector_get(&v->entries, p);
 
@@ -128,7 +143,7 @@ static inline struct entry* duplicate_entry_lazy_get(struct duplicate* const d, 
     return e;
   }
   
-  struct entry* const e = entry_create(s, a);
+  struct entry* const e = entry_create(o, s, a);
 
   vector_insert(&v->entries, p, e);
 
@@ -140,15 +155,19 @@ static inline struct entry* duplicate_entry_lazy_get(struct duplicate* const d, 
   return e;
 }
 
-static inline struct entry* duplicate_entry_lazy_get_atomic(struct duplicate* const d, const dev_t n, const struct stat* const s, const char* const a,  size_t* c, bool* i) {
+static inline struct entry* duplicate_entry_lazy_get_atomic(struct duplicate* const d, const dev_t n, const ino_t o, const struct stat* const s, const char* const a,  size_t* c, bool* i) {
 
   struct entry* e;
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_lock(&d->mutex);
+#endif
 
-  e = duplicate_entry_lazy_get(d, n, s, a, c, i);
+  e = duplicate_entry_lazy_get(d, n, o, s, a, c, i);
 
+#ifdef HAVE_PTHREAD_H
   pthread_mutex_unlock(&d->mutex);
+#endif
 
   return e;
 }
@@ -174,11 +193,19 @@ static inline void duplicate_print(const struct duplicate* const d) {
 
   vector_for_each(v, &d->devices) {
 
-    printf("(%lu)\n", i);
+#ifndef HAVE_WINDOWS
+    printf("(%zu)\n", i);
+#else
+    printf("(%lu)\n", (long unsigned) i);
+#endif
 
     vector_for_each(e, &v->entries) {
 
-      printf("[%lu] ", i);
+#ifndef HAVE_WINDOWS
+      printf("[%zu] ", i);
+#else
+      printf("[%lu] ", (long unsigned) i);
+#endif
       entry_print(NULL, e, NULL);
       printf("\n");
     }

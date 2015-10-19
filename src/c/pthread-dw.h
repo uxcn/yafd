@@ -3,10 +3,16 @@
 #ifndef PTHREAD_DW_H
 #define PTHREAD_DW_H
 
+#include "config.h" // autoconf
+
+
 #include <stddef.h>
 #include <stdbool.h>
 
 #include <pthread.h>
+
+
+#include "platform.h" // platform
 
 typedef struct pthread_barrier_t {
 
