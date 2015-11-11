@@ -3,6 +3,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <assert.h>
+
 #include "config.h" // autoconf
 
 
@@ -32,6 +34,8 @@ struct list {
 };
 
 static inline void list_init(struct list* const l) {
+
+  assert(l != NULL);
 
   l->head = l->tail = NULL;
 }

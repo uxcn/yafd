@@ -3,6 +3,8 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
+#include <assert.h>
+
 #include "config.h" // autoconf
 
 
@@ -96,6 +98,8 @@ static inline int entry_compare(const void* const k, const void* const v) {
 
 static inline void entry_init(struct entry* const e) {
 
+  assert(e != NULL);
+
   vector_init(&e->aliases, default_init_aliases);
 }
 
@@ -120,6 +124,9 @@ static inline struct entry* entry_create(const ino_t i, const struct stat* const
 static inline void entry_destroy(struct entry* const e) {
 
   char* a;
+
+  assert(e != NULL);
+
 
   vector_for_each(a, &e->aliases)
     free(a);

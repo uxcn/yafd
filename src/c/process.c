@@ -39,6 +39,8 @@
 #include "thread.h"
 #include "worker.h"
 
+#include "math.h"
+
 #ifdef HAVE_WINDOWS
 #include "mingw.h"
 #endif

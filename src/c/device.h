@@ -3,6 +3,8 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#include <assert.h>
+
 #include "config.h" // autoconf
 
 
@@ -38,6 +40,8 @@ static inline int device_compare(const void* const k, const void* const v) {
 
 static inline void device_init(struct device* const v) {
 
+  assert(v != NULL);
+
   vector_init(&v->entries, default_init_entries);
 }
 
@@ -55,6 +59,8 @@ static inline struct device* device_create(const dev_t n) {
 static inline void device_destroy(struct device* const v) {
   
   struct entry* e;
+
+  assert(v != NULL);
 
   vector_for_each(e, &v->entries)
     entry_destroy(e);

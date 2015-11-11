@@ -31,12 +31,16 @@ struct vector {
 
 static inline void vector_init(struct vector* v, const size_t s) {
 
+  assert(v != NULL);
+
   v->size = 0;
   v->limit = max(s, 2);
   v->store = fmalloc(v->limit * sizeof(void*));
 }
 
 static inline void vector_destroy(struct vector* v) {
+
+  assert(v != NULL);
 
   free(v->store);
 }
@@ -81,6 +85,8 @@ static inline void vector_insert(struct vector* const v, const size_t i, const v
 
   if (++v->size == v->limit)
     vector_resize(v, v->limit << 1);
+
+  assert(v->store != NULL);
 
   memmove(&v->store[i + 1], &v->store[i], (v->size - i - 1) * sizeof(void*));
 

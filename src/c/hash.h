@@ -74,6 +74,8 @@ static inline void hash_reset(struct hash* const h, size_t s) {
 
 static inline void hash_init(struct hash* const h, size_t s) {
 
+  assert(h != NULL);
+
 #ifdef HAVE_PTHREAD_H
   pthread_mutex_init(&h->mutex, NULL);
 #endif
@@ -92,6 +94,8 @@ static inline void hash_release(struct hash* const h) {
 }
 
 static inline void hash_destroy(struct hash* const h) {
+
+  assert(h != NULL);
 
 #ifdef HAVE_PTHREAD_H
   pthread_mutex_destroy(&h->mutex);

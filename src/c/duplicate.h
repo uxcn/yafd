@@ -3,6 +3,8 @@
 #ifndef DUPLICATE_H
 #define DUPLICATE_H
 
+#include <assert.h>
+
 #include "config.h" // autoconf
 
 
@@ -67,6 +69,8 @@ static inline int duplicate_digest_compare(const void* const k, const void* cons
 
 static inline void duplicate_init(struct duplicate* const d) {
 
+  assert(d != NULL);
+
 #ifdef HAVE_PTHREAD_H
   pthread_mutex_init(&d->mutex, NULL);
 #endif
@@ -88,8 +92,10 @@ static inline struct duplicate* duplicate_create() {
 }
 
 static inline void duplicate_destroy(struct duplicate* const d) {
-  
+
   struct device* v;
+
+  assert(d != NULL);
 
   vector_for_each(v, &d->devices)
     device_destroy(v);

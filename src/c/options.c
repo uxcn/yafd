@@ -8,8 +8,11 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <assert.h>
 
 #include <stdio.h>
+
+#include <stdint.h>
 
 #include <string.h>
 #include <strings.h>
@@ -186,11 +189,23 @@ void _options_destroy() {
 void options_parse(const int argc, const char* const argv[]) {
 
 #ifndef OFF_T_MIN
-  const off_t OFF_T_MIN = ((off_t) -1) << ((sizeof(off_t) << 3) - 1);
+  assert(sizeof(off_t) >= sizeof(int8_t) && sizeof(off_t) <= sizeof(intmax_t));
+
+  const off_t OFF_T_MIN = sizeof(off_t) == sizeof(int8_t)   ? INT8_MIN    :
+                          sizeof(off_t) == sizeof(int16_t)  ? INT16_MIN   :
+                          sizeof(off_t) == sizeof(int32_t)  ? INT32_MIN   :
+                          sizeof(off_t) == sizeof(int64_t)  ? INT64_MIN   :
+                          sizeof(off_t) == sizeof(intmax_t) ? INTMAX_MIN  : 0;
 #endif
 
 #ifndef OFF_T_MAX
-  const off_t OFF_T_MAX = (OFF_T_MIN + 1) * -1;
+  assert(sizeof(off_t) >= sizeof(int8_t) && sizeof(off_t) <= sizeof(intmax_t));
+
+  const off_t OFF_T_MAX = sizeof(off_t) == sizeof(int8_t)   ? INT8_MAX    :
+                          sizeof(off_t) == sizeof(int16_t)  ? INT16_MAX   :
+                          sizeof(off_t) == sizeof(int32_t)  ? INT32_MAX   :
+                          sizeof(off_t) == sizeof(int64_t)  ? INT64_MAX   :
+                          sizeof(off_t) == sizeof(intmax_t) ? INTMAX_MAX  : 0;
 #endif
 
 #ifndef SIZE_T_MAX

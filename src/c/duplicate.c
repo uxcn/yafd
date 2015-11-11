@@ -79,7 +79,7 @@ int duplicate_content_compare(const void* const k, const void* const v) {
 
     typedef uint8_t buffer_t[2][c];
 
-    uint8_t db[2][c > pz ? 0 : c];
+    uint8_t db[2][c > pz ? 1 : c]; // zero length undefined
 #ifdef HAVE_PTHREAD_H
     uint8_t* dg = c > pz ? thread_local_buffer(c << 1) : (uint8_t*) db;
 #else

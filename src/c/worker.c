@@ -98,9 +98,6 @@ void _worker_init(const int threads) {
 #ifdef HAVE_PTHREAD_H
 int worker_start(const int threads, pthread_t tids[threads]) {
 
-  if (!threads)
-    worker(NULL);
-
   for (int i = 0; i < threads; i++) {
 
     int err = pthread_create(&tids[i], NULL, worker, NULL);
@@ -394,7 +391,7 @@ static void do_digest(struct duplicate* const d) {
 
   vector_init(&ds, 2);
 
-  uint8_t db[bs > pz ? 0 : bs];
+  uint8_t db[bs > pz ? 1 : bs]; // zero length undefined
 #ifdef HAVE_PTHREAD_H
   uint8_t* dg = bs > pz ? thread_local_buffer(bs) : db;
 #else

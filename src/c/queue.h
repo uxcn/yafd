@@ -3,6 +3,8 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <assert.h>
+
 #include "config.h" // autoconf
 
 
@@ -34,6 +36,8 @@ struct queue {
 };
 
 static inline void queue_init(struct queue* const q) {
+
+  assert(q != NULL);
 
 #ifdef HAVE_PTHREAD_H
   pthread_mutex_init(&q->mutex, NULL);
