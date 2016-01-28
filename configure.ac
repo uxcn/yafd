@@ -74,8 +74,24 @@ AS_IF([test "x$enable_ubsan" = "xyes"],
   )
 )
 
+AC_ARG_ENABLE([ssse3],
+  AS_HELP_STRING([--enable-ssse3], [enable SSSE3 optimizations])
+)
+
+AC_ARG_ENABLE([sse4_1],
+  AS_HELP_STRING([--enable-sse4_1], [enable SSE4.1 optimizations])
+)
+
 AC_ARG_ENABLE([sse4_2],
   AS_HELP_STRING([--enable-sse4_2], [enable SSE4.2 optimizations])
+)
+
+AS_IF([test "x$enable_ssse3" = "xyes"],
+  CFLAGS="$CFLAGS -mssse3"
+)
+
+AS_IF([test "x$enable_sse4_1" = "xyes"],
+  CFLAGS="$CFLAGS -msse4.1"
 )
 
 AS_IF([test "x$enable_sse4_2" = "xyes"],

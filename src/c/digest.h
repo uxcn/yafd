@@ -23,7 +23,7 @@
 #include "fnv32a.h"
 #include "fnv64a.h"
 
-#include "city.h"
+#include "farm.h"
 #include "spooky.h"
 
 static size_t num_digs = 0;
@@ -35,8 +35,8 @@ enum digest {
   dig_fnv32a = 'N',
   dig_fnv64a = 'V',
 
-  dig_cty64  = 'T',
-  dig_cty128 = 'Y',
+  dig_frm64  = 'F',
+  dig_frm128 = 'M',
 
   dig_sky64  = 'S',
   dig_sky128 = 'P',
@@ -50,11 +50,11 @@ struct digest_t {
 
   uint64_t fnv64a;
 
-  uint64_t cty64;
+  uint64_t frm64;
 
   uint64_t sky64;
 
-  uint128_t cty128;
+  uint128_t frm128;
 
   uint128_t sky128;
 };
@@ -71,8 +71,8 @@ static inline void _digest_init() {
     case dig_crc32:   digests++;
     case dig_fnv32a:  digests++;
     case dig_fnv64a:  digests++;
-    case dig_cty64:   digests++;
-    case dig_cty128:  digests++;
+    case dig_frm64:   digests++;
+    case dig_frm128:  digests++;
     case dig_sky64:   digests++;
     case dig_sky128:  digests++;
   };
@@ -94,11 +94,11 @@ static inline const char* to_string_digest(const enum digest d) {
     case dig_fnv64a:
       return "fnv64a";
 
-    case dig_cty64:
-      return "cty64";
+    case dig_frm64:
+      return "frm64";
 
-    case dig_cty128:
-      return "cty128";
+    case dig_frm128:
+      return "frm128";
 
     case dig_sky64:
       return "sky64";
@@ -133,16 +133,16 @@ static inline int digest_compare(const struct digest_t* const a, const struct di
         cmp = (a->fnv64a > b->fnv64a) - (b->fnv64a < a->fnv64a);
         break;
 
-      case dig_cty64:
-        cmp = (a->cty64 > b->cty64) - (b->cty64 < a->cty64);
+      case dig_frm64:
+        cmp = (a->frm64 > b->frm64) - (b->frm64 < a->frm64);
         break;
 
       case dig_sky64:
         cmp = (a->sky64 > b->sky64) - (b->sky64 < a->sky64);
         break;
 
-      case dig_cty128:
-        cmp = uint128_gt(&a->cty128, &b->cty128) - uint128_lt(&b->cty128, &a->cty128);
+      case dig_frm128:
+        cmp = uint128_gt(&a->frm128, &b->frm128) - uint128_lt(&b->frm128, &a->frm128);
         break;
 
       case dig_sky128:
@@ -176,12 +176,12 @@ static inline void digest_init(struct digest_t* dig, const enum digest* const ts
         fnv64a_init(&dig->fnv64a);
         break;
 
-      case dig_cty64:
-        cty64_init(&dig->cty64);
+      case dig_frm64:
+        frm64_init(&dig->frm64);
         break;
 
-      case dig_cty128:
-        cty64_init(&dig->cty64);
+      case dig_frm128:
+        frm128_init(&dig->frm128);
         break;
 
       case dig_sky64:
@@ -217,12 +217,12 @@ static inline void digest_finalize(struct digest_t* dig, const enum digest* cons
         fnv64a_finalize(&dig->fnv64a);
         break;
 
-      case dig_cty64:
-        cty64_finalize(&dig->cty64);
+      case dig_frm64:
+        frm64_finalize(&dig->frm64);
         break;
 
-      case dig_cty128:
-        cty128_finalize(&dig->cty128);
+      case dig_frm128:
+        frm128_finalize(&dig->frm128);
         break;
 
       case dig_sky64:
@@ -258,16 +258,12 @@ static inline void digest(const size_t len, const uint8_t data[len], struct dige
         fnv64a(len, data, &dig->fnv64a);
         break;
 
-      case dig_cty64:
-        cty64(len, data, &dig->cty64);
+      case dig_frm64:
+        frm64(len, data, &dig->frm64);
         break;
 
-      case dig_cty128:
-#if defined(__SSE4_2__) && defined(__x86_64)
-        cty128_crc(len, data, &dig->cty128);
-#else
-        cty128(len, data, &dig->cty128);
-#endif
+      case dig_frm128:
+        frm128(len, data, &dig->frm128);
         break;
 
       case dig_sky64:

@@ -37,7 +37,7 @@
 #endif
 
 #ifndef OPT_DIGEST
-#define OPT_DIGEST dig_cty128
+#define OPT_DIGEST dig_frm128
 #endif
 
 struct opts {

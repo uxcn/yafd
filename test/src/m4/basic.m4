@@ -17,50 +17,50 @@ basic (FNV1a 64):
   $ yafd -V < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T < files/basic/list | sets | sort
+  $ yafd -F < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T -b 2 < files/basic/list | sets | sort
+  $ yafd -F -b 2 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-  $ yafd -T -b 4 < files/basic/list | sets | sort
+  $ yafd -F -b 4 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-  $ yafd -T -b 8 < files/basic/list | sets | sort
+  $ yafd -F -b 8 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T -b 16 < files/basic/list | sets | sort
+  $ yafd -F -b 16 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T -b 32 < files/basic/list | sets | sort
+  $ yafd -F -b 32 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T -b 64 < files/basic/list | sets | sort
+  $ yafd -F -b 64 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 64):
+basic (FarmHash 64):
 
-  $ yafd -T -b 128 < files/basic/list | sets | sort
+  $ yafd -F -b 128 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 128):
+basic (FarmHash 128):
 
-  $ yafd -Y < files/basic/list | sets | sort
+  $ yafd -M < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
-basic (CityHash 128):
+basic (FarmHash 128):
 
-  $ yafd -Y -b 16 < files/basic/list | sets | sort
+  $ yafd -M -b 16 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
 
 basic (SppokyHash 64):

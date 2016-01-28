@@ -48,8 +48,8 @@ enum opt {
   opt_crc32       = 'C',
   opt_fnv32a      = 'N',
   opt_fnv64a      = 'V',
-  opt_cty64       = 'T',
-  opt_cty128      = 'Y',
+  opt_frm64       = 'F',
+  opt_frm128      = 'M',
   opt_sky64       = 'S',
   opt_sky128      = 'P',
   opt_zero        = 'z',
@@ -95,8 +95,8 @@ static const struct opt_desc opt_descs[] = {
   { opt_crc32,        "crc32",        "use CRC (32)",                      no_argument },
   { opt_fnv32a,       "fnv32a",       "use FNV-1a (32)",                   no_argument },
   { opt_fnv64a,       "fnv64a",       "use FNV-1a (64)",                   no_argument },
-  { opt_cty64,        "cty64",        "use CityHash (64)",                 no_argument },
-  { opt_cty128,       "cty128",       "use CityHash (128)",                no_argument },
+  { opt_frm64,        "frm64",        "use FarmHash (64)",                 no_argument },
+  { opt_frm128,       "frm128",       "use FarmHash (128)",                no_argument },
   { opt_sky64,        "sky64",        "use SpookyHash (64)",               no_argument },
   { opt_sky128,       "sky128",       "use SpookyHash (128)",              no_argument },
 #ifdef HAVE_PTHREAD_H
@@ -378,15 +378,15 @@ void options_parse(const int argc, const char* const argv[]) {
         opts.num_digs++;
         break;
 
-      case opt_cty64:
+      case opt_frm64:
 
-        opts.digs[opts.num_digs] = dig_cty64;
+        opts.digs[opts.num_digs] = dig_frm64;
         opts.num_digs++;
         break;
 
-      case opt_cty128:
+      case opt_frm128:
 
-        opts.digs[opts.num_digs] = dig_cty128;
+        opts.digs[opts.num_digs] = dig_frm128;
         opts.num_digs++;
         break;
 

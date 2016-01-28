@@ -7,6 +7,8 @@ flags = [
 '-D_GNU_SOURCE',
 '-DFILE_OFFSET_BITS=64',
 #'-march=x86-64',
+#'-mssse3',
+#'-msse4.1',
 #'-msse4.2',
 '-std=c99', 
 '-Wall', 

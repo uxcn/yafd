@@ -44,23 +44,23 @@ struct hash {
   struct hash_entry** table;
 };
 
-static inline size_t hash_city(const size_t v) {
+static inline size_t hash_farm(const size_t v) {
   
-  // city hash 
+  // farm hash
   
   const size_t k = 0x9ae16a3b2f90404f;  
   const size_t mul = k + 16;
 
-  size_t a = ror(v + k, 37) * mul + (v + k);
-  size_t b = ror(v, 25) * mul;
+  size_t a = ror(v, 37) * mul + (v + k);
+  size_t b = (ror(v + k, 25) + v) * mul;
 
   a = (a ^ b) * mul;
   a ^= (a >> 47);
 
-  b = (a ^ v) * mul;;
+  b = (b ^ a) * mul;;
   b ^= (b >> 47);
 
-  return (b * mul);
+  return b * mul;
 }
 
 static inline void hash_reset(struct hash* const h, size_t s) {
@@ -117,7 +117,7 @@ static inline void hash_resize(struct hash* const h, const size_t s) {
 
   hash_for_each(e, a) {
 
-    size_t p = hash_city(e->value);
+    size_t p = hash_farm(e->value);
     struct hash_entry* he = NULL;
 
     do {
@@ -138,7 +138,7 @@ static inline void hash_resize(struct hash* const h, const size_t s) {
 static inline struct hash_entry* hash_get(const struct hash* const h,
                                           const size_t v) {
   
-  size_t p = hash_city(v);
+  size_t p = hash_farm(v);
 
   struct hash_entry* he = NULL;
 
@@ -159,7 +159,7 @@ static inline bool hash_put(struct hash* const h, struct hash_entry* const e) {
   if (h->size == h->limit >> 1)
     hash_resize(h, h->limit << 1);
 
-  size_t p = hash_city(e->value);
+  size_t p = hash_farm(e->value);
   struct hash_entry* he = NULL;
 
   do {
@@ -185,7 +185,7 @@ static inline struct hash_entry* hash_get_or_put_atomic(struct hash* const h,
   if (h->size == h->limit >> 1)
     hash_resize(h, h->limit << 1);
 
-  size_t p = hash_city(e->value);
+  size_t p = hash_farm(e->value);
   struct hash_entry* he = NULL;
 
   do {
@@ -216,7 +216,7 @@ static inline struct hash_entry* hash_get_or_put_atomic(struct hash* const h,
 static inline void hash_remove(struct hash* const h,
                                struct hash_entry* const e) {
 
-  size_t p = hash_city(e->value);
+  size_t p = hash_farm(e->value);
   struct hash_entry* he = NULL; 
 
   assert(h->size > 0);
