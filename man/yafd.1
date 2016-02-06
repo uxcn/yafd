@@ -1,0 +1,140 @@
+.\" yafd man page
+.
+.TH YAFD 1 "yafd 0.1"
+.
+.SH NAME
+yafd - yet another file deduplicator
+.
+.SH SYNOPSIS
+.B yafd
+.RI [ options ]
+.RI [ path .\|.\|. ]
+.
+.SH DESCRIPTION
+.B yafd
+identifies duplicate files in
+.IR path
+lists.
+If no
+.IR path
+is given,
+.B yafd
+will process standard input as a list of
+.IR path
+values.  By default,
+.B yafd
+prints duplicate files to standard output.
+.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\^\-help
+Print a help summary.
+.TP
+.BR \-v ", " \-\^\-version
+Print the version number.
+.TP
+.BR \-r ", " \-\^\-recurse
+Recurse into sub-directories.
+.TP
+.BR \-q ", " \-\^\-quiet
+Be quiet, don't output anything to standard output.
+.TP
+.BR \-0 ", " \-\^\-null
+Use a zero byte ( ASCII
+.BR NUL
+) instead of a newline to delimit files.  If filenames can contain whitespace,
+this can be used to remove ambiguity.
+.TP
+.BR \-f ", " \-\^\-force
+Don't prompt before doing action (
+.BR \-d "/" \-\^\-delete
+,
+.BR \-l "/" \-\^\-link
+, etc... ).  By default, any action requires confirmation.
+.TP
+.BR \-l ", " \-\^\-link
+Merge duplicate files by hard linking them.  This will reduce the amount of disk needed by
+(
+(
+.BR num_files
+- 1 )
+x
+.BR file_size
+)
+for each group of duplicate files found for each device.  Note, hard links do not have copy-on-write semantics, and duplicate file names will refer to the same file on each device after being hard linked.
+.TP
+.BR \-p ", " \-\^\-print
+Print duplicate files (default).
+.TP
+.BR \-i ", " \-\^\-interactive
+Prompt to choose an action for each duplicate file... (d)elete, (l)ink, (n)othing, etc.
+.TP
+.BR \-z ", " \-\^\-zero
+Process zero size files as duplicate.  By default, zero sized files are ignored.
+.TP
+.BR \-t ", " \-\^\-threads
+The number of concurrent system threads to use.  By default, this value is
+(
+.BR num_cpus
+x 2
+), which is meant to allow half of the threads to block on I/O at any time.  For most workloads and hardware this is a good default, although different workloads and hardware may have better performance with different values.  It is safe to leave this value unset.  Set this to 0 to run without any threads.
+.TP
+.BR \-b ", " \-\^\-bytes
+The number of bytes to use in the digest.  This value defaults to the block size of the filesystem, which is generally enough data to distinguish between files.  However, if files have more data in common than differs, using a larger value may give better performance.  It is safe to leave this value unset.  Set this value to 0 to avoid computing digests.
+.TP
+.BR \-k ", " \-\^\-blocksize
+The default blocksize to use.  If the block size for a file cannot be determined, this value will be used.  It is safe to leave this value unset.  Valid values are generally multiples of two (4096, 8192, etc...).
+.TP
+.BR \-o ", " \-\^\-offset
+A static offset into files to use for digests.  This value should not be set unless you have specific information about the contents of the files being processed.  By default, the offset is randomized which limits pathological performance and digest collision problems.  It is safe to leave this value unset.  Set to a negative value to define an offset relative to file ends.
+.TP
+.BR \-m ", " \-\^\-mmap
+Use memory mapped file I/O.  This may improve performance for unusually large files or extremely high file counts, but it is slightly dangerous and may be
+removed in a future version.  Consider guarding your pets.
+.TP
+.BR \-c ", " \-\^\-crc32
+Use CRC-32 to digest bytes.  This may be faster on architectures that support a CRC-32 instruction, namely the SSE4.2 instruction set.
+.TP
+.BR \-N ", " \-\^\-fnv32a
+Use FNV-1a (32 bit) to digest bytes.
+.TP
+.BR \-V ", " \-\^\-fnv64a
+Use FNV-1a (64 bit) to digest bytes.
+.TP
+.BR \-F ", " \-\^\-frm64
+Use FarmHash (64 bit) to digest bytes.
+.TP
+.BR \-M ", " \-\^\-frm128
+Use FarmHash (128 bit) to digest bytes.
+.TP
+.BR \-S ", " \-\^\-sky64
+Use SpookyHash (64 bit) to digest bytes.
+.TP
+.BR \-P ", " \-\^\-sky128
+Use SpookyHash (128 bit) to digest bytes.
+.
+.SH EXAMPLES
+.B yafd a b c d
+
+Print duplicate files in the group of files a, b, c, and d.
+
+.B yafd -r -z .
+
+Recursively find duplicated files in the current directory, including zero sized files.
+
+.B yafd -i src/*/**/*.hpp src/*/**/*.cpp
+
+Interactively process duplicated source files.
+
+.B find /multimedia -size +1G | yafd -N -b 1048576 | xargs du -b | awk '{ x+=$1; } END { print x; }'
+
+Find duplicate files larger than 1GiB using FNV-1a (64 bit) with 1MiB for digest and print the total bytes consumed.
+
+.SH COPYRIGHT
+Copyright (c) 2015-2016 Jason Schulz <https://github.com/uxcn>.
+.
+.SH BUGS
+Send any bug reports to the github issue tracker (https://github.com/uxcn/yafd/issues)
+.
+.SH SEE ALSO
+fdupes(1), find(1), xargs(1)
