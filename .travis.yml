@@ -1,0 +1,42 @@
+language: c
+
+sudo: false
+
+branches:
+  only:
+    - master
+
+notifications:
+  email:
+    - jason@schulz.name
+
+os: 
+  - linux
+  - osx
+compiler:
+  - clang
+  - gcc
+
+matrix:
+  include:
+    - os: linux
+      compiler: clang
+      env: enable_asan=1
+    - os: linux
+      compiler: clang
+      env: enable_msan=1
+    - os: linux
+      compiler: clang
+      env: enable_tsan=1
+    - os: linux
+      compiler: clang
+      env: enable_ubsan=1
+  allow_failures:
+    - env: enable_msan=1
+  fast_finish: true
+
+install:
+  - .travis/install.sh
+
+script:
+  - .travis/script.sh

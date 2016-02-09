@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+# https://github.com/travis-ci/travis-ci/issues/5030
+if [ "$TRAVIS_OS_NAME" = 'osx' ]; then
+  export PATH=${PATH}:/Users/travis/Library/Python/2.7/bin
+fi
+
 ulimit -s 8192
 
 DIR=$PWD
