@@ -21,6 +21,9 @@ matrix:
   include:
     - os: linux
       compiler: clang
+      env: enable_gcov=1
+    - os: linux
+      compiler: clang
       env: enable_asan=1
     - os: linux
       compiler: clang
@@ -40,3 +43,6 @@ install:
 
 script:
   - .travis/script.sh
+
+after_success:
+  - .travis/after_success.sh
