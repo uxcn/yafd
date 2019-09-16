@@ -69,11 +69,17 @@ static inline void _digest_init() {
     // emit compiler warning
     
     case dig_crc32:   digests++;
+    // fall-through
     case dig_fnv32a:  digests++;
+    // fall-through
     case dig_fnv64a:  digests++;
+    // fall-through
     case dig_frm64:   digests++;
+    // fall-through
     case dig_frm128:  digests++;
+    // fall-through
     case dig_sky64:   digests++;
+    // fall-through
     case dig_sky128:  digests++;
   };
 

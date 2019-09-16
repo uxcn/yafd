@@ -404,9 +404,11 @@ void options_parse(const int argc, const char* const argv[]) {
 
       case opt_version:
         print_version();
+        break;
 
       case opt_help:
         print_help();
+        break;
     }
   }
 
