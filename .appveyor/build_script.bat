@@ -2,7 +2,7 @@ set PATH=C:\msys64\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\mingw64\bin;%PATH%
 
-set CC=x86_64-w64-mingw32-gcc
+set CC=gcc
 
 REM echo useful info
 bash --login -c "$CC -v"
