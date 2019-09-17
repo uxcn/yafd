@@ -9,15 +9,18 @@ fi
 case ${CC} in
 
   gcc*)
-    GCOV="gcov${CC##gcc}";;
+    GCOV="gcov${CC##gcc}";
+    GCOV_OPTIONS="";;
 
   clang*)
-    GCOV="gcov${CC##clang}";;
+    GCOV="llvm-cov${CC##clang}";
+    GCOV_OPTIONS="gcov";;
 
   *)
     GCOV="gcov";
+    GCOV_OPTIONS="";
     echo -e "unknown compiler (${CC})";;
 
 esac
 
-coveralls --gcov ${GCOV} --include src/c/
+coveralls --gcov ${GCOV} --gcov-options ${GCOV_OPTIONS} --include src/c/
