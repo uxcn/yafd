@@ -2,7 +2,7 @@
 
 [![build status](https://travis-ci.org/uxcn/yafd.svg?branch=master)](https://travis-ci.org/uxcn/yafd)
 [![build status](https://ci.appveyor.com/api/projects/status/tfikjw9me77nvuw5?svg=true)](https://ci.appveyor.com/project/uxcn/yafd)
-[![coverage status](https://coveralls.io/repos/uxcn/yafd/badge.svg?branch=master&service=github)](https://coveralls.io/github/uxcn/yafd?branch=master)
+[![coverage status](https://coveralls.io/repos/github/uxcn/yafd/badge.svg?branch=master)](https://coveralls.io/github/uxcn/yafd?branch=master)
 [![issues](https://img.shields.io/github/issues/uxcn/yafd.svg)](https://github.com/uxcn/yafd/issues)
 
 yafd is a (yet another) file deduplicator.
