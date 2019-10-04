@@ -56,8 +56,6 @@ enum opt {
 #ifdef HAVE_PTHREAD_H
   opt_threads     = 't',
 #endif
-  opt_blocksize   = 'k',
-  opt_pagesize    = 'g',
   opt_bytes       = 'b',
   opt_offset      = 'o',
   opt_version     = 'v',
@@ -102,8 +100,6 @@ static const struct opt_desc opt_descs[] = {
 #ifdef HAVE_PTHREAD_H
   { opt_threads,      "threads",      "the number of concurrent threads",  required_argument },
 #endif
-  { opt_blocksize,    "blocksize",    "the default filesystem block size", required_argument },
-  { opt_pagesize,     "pagesize",     "the default memory page size",      required_argument },
   { opt_bytes,        "bytes",        "the number of bytes to use in " 
                                       "digest to identify potential " 
                                       "duplicates",                       required_argument },
@@ -215,8 +211,6 @@ void options_parse(const int argc, const char* const argv[]) {
 #ifdef HAVE_PTHREAD_H
   unsigned long threads;
 #endif
-  unsigned long blocksize;
-  unsigned long pagesize;
   unsigned long long bytes;
   long long offset;
   int i;
@@ -323,24 +317,6 @@ void options_parse(const int argc, const char* const argv[]) {
         break;
 #endif
 
-      case opt_blocksize:
-        blocksize = strtoul(optarg, NULL, 10);
-
-        if (errno == ERANGE || blocksize > (unsigned long) INT_MAX)
-          on_fatal("invalid blocksize (%s)", optarg);
-
-        opts.blocksize = (int) blocksize;
-        break;
-
-      case opt_pagesize:
-        pagesize = strtoul(optarg, NULL, 10);
-
-        if (errno == ERANGE || pagesize > (unsigned long) INT_MAX)
-          on_fatal("invalid pagesize (%s)", optarg);
-
-        opts.pagesize = (int) pagesize;
-        break;
-
       case opt_bytes:
         bytes = strtoull(optarg, NULL, 10);
 
@@ -411,12 +387,6 @@ void options_parse(const int argc, const char* const argv[]) {
         break;
     }
   }
-
-  if (!opts.blocksize)
-    opts.blocksize = OPT_BLKSIZE;
-
-  if (!opts.pagesize)
-    opts.pagesize = OPT_PAGSIZE;
 
   if (!opts.act)
     opts.act = OPT_ACTION;

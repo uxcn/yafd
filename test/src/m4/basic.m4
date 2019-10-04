@@ -92,8 +92,3 @@ basic (large bytes):
 
   $ yafd -b 1073741824 < files/basic/list | sets | sort
 esyscmd(sort files/basic/sets | sed s/^/"  "/)
-
-basic (large blocksize):
-
-  $ yafd -k 1073741824 < files/basic/list | sets | sort
-esyscmd(sort files/basic/sets | sed s/^/"  "/)

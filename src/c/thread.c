@@ -66,24 +66,11 @@ typedef cpuset_t cpu_set_t;
 
 void _thread_init() {
 
-
-#ifdef HAVE_GETRLIMIT
-  struct rlimit r;
-
-  if (getrlimit(RLIMIT_STACK, &r))
-    print_error("unable to determine stack limit");
-
-#if defined(HAVE_FREEBSD)
-  pz = r.rlim_cur < 0 ? 0 : (size_t) r.rlim_cur >> 4;
+#ifdef HAVE_GETPAGESIZE
+  pz = (size_t) getpagesize();
 #else
-  pz = r.rlim_cur >> 4;
+  pz = (size_t) 4096;
 #endif
-
-#else
-  pz = (size_t) opts.pagesize;
-#endif
-
-  pz = min(pz, (size_t) opts.pagesize);
 }
 
 #if defined(HAVE_PTHREAD_H)

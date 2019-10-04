@@ -28,7 +28,6 @@
 #include "entry.h"
 
 #include "math.h"
-#include "file.h"
 #include "options.h"
 
 int duplicate_content_compare(const void* const k, const void* const v) {
@@ -45,10 +44,8 @@ int duplicate_content_compare(const void* const k, const void* const v) {
 #ifdef HAVE_STAT_BLKSIZE
   const size_t bs = (size_t) min(ea->bs, eb->bs);
 #else
-  const size_t bs = (size_t) opts.blocksize;
+  const size_t bs = (size_t) 4096;
 #endif
-
-  const int fds[2] = {ea->fd, eb->fd};
 
   size_t rs = (size_t) ea->size;
 
@@ -76,22 +73,35 @@ int duplicate_content_compare(const void* const k, const void* const v) {
 
     const size_t c = min(rs, bs);
 
+    uint8_t* dga[c];
+    uint8_t* dgb[c];
 
-    typedef uint8_t buffer_t[2][c];
+    size_t abs = 0;
+    size_t bbs = 0;
 
-    uint8_t db[2][c > pz ? 1 : c]; // zero length undefined
-#ifdef HAVE_PTHREAD_H
-    uint8_t* dg = c > pz ? thread_local_buffer(c << 1) : (uint8_t*) db;
-#else
-    uint8_t* dg = c > pz ? frealloc(bf, c << 1) : (uint8_t*) db;
-#endif
+    ssize_t r = 0;
+    size_t cs = c << 1;
 
-    buffer_t* da = (buffer_t*) dg; // magic
+    do {
 
-    if (read_n(2, fds, c, *da))
-      return -2;
+      r = read(ea->fd, &dga[abs], (unsigned) (c - abs));
 
-    const int cmp = memcmp(&(*da)[0], &(*da)[1], c);
+      if (r < 0)
+        return -2;
+
+      abs += (size_t) r;
+      cs -= (size_t) r;
+
+      r = read(eb->fd, &dgb[bbs], (unsigned) (c - bbs));
+
+      if (r < 0)
+        return -2;
+
+      bbs += (size_t) r;
+      cs -= (size_t) r;
+    } while (cs);
+
+    const int cmp = memcmp(dga, dgb, c);
 
     if (cmp)
       return cmp > 0 ? 1 : -1;
@@ -118,7 +128,7 @@ int duplicate_content_compare_mmap(const void* const k, const void* const v) {
 #ifdef HAVE_STAT_BLKSIZE
   const size_t bs = (size_t) min(ea->bs, eb->bs);
 #else
-  const size_t bs = (size_t) opts.blocksize;
+  const size_t bs = (size_t) 4096;
 #endif
 
 #ifdef HAVE_POSIX_MADVISE

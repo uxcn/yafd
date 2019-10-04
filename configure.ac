@@ -112,7 +112,7 @@ AC_TYPE_SSIZE_T
 
 AC_FUNC_STRERROR_R
 
-AC_CHECK_FUNCS([mmap getrlimit posix_madvise posix_fadvise])
+AC_CHECK_FUNCS([mmap getpagesize posix_madvise posix_fadvise])
 
 AC_CHECK_MEMBERS(
   [struct stat.st_blksize],

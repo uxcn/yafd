@@ -391,11 +391,10 @@ static void do_digest(struct duplicate* const d) {
 
   vector_init(&ds, 2);
 
-  uint8_t db[bs > pz ? 1 : bs]; // zero length undefined
 #ifdef HAVE_PTHREAD_H
-  uint8_t* dg = bs > pz ? thread_local_buffer(bs) : db;
+  uint8_t* dg = thread_local_buffer(bs);
 #else
-  uint8_t* dg = bs > pz ? frealloc(bf, bs) : db;
+  uint8_t* dg = frealloc(bf, bs);
 #endif
 
   size_t rs = bs * n;

@@ -20,14 +20,6 @@
 
 // option defaults
 
-#ifndef OPT_BLKSIZE
-#define OPT_BLKSIZE 4096
-#endif
-
-#ifndef OPT_PAGSIZE
-#define OPT_PAGSIZE 4096
-#endif
-
 #ifndef OPT_BYTES
 #define OPT_BYTES 4096
 #endif
@@ -65,10 +57,6 @@ struct opts {
 #ifdef HAVE_PTHREAD_H
   int threads;
 #endif
-
-  int blocksize;
-
-  int pagesize;
 
   size_t bytes;
 
